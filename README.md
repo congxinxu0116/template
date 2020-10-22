@@ -10,6 +10,10 @@ ____
 ```
 template
 |
+data
+    |_ raw
+    |_ clean
+|
 setup.py
 |
 template
@@ -28,6 +32,7 @@ Where template represents the name of my project. I may also have additional fol
 
 ```
 ## Set up
+___
 1. Create file structure and setup.py
 2. Create new virtual environment for project (I use pyenv)
 3. In root template folder, run 
@@ -40,4 +45,7 @@ For example, to test example.py in test_example.py,
 ```
 from template.library import example
 ```
+## Git
+In practice, I place my git repo in the second template folder, meaning I don't track my data with git. 
+
 
