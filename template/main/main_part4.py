@@ -79,8 +79,25 @@ def doc_sim(script1, script2, mode = 'normal', method = 'cosine',
         raise SystemExit("Incorrect 'word_embedding' used. Use True or False")
     
     # Preprocessing: 
-    
-    
+    if remove_stop_words:
+        script1 = placeholder_remove_stop_words(script1)
+        script2 = placeholder_remove_stop_words(script2)
+    if lemmatize:
+        script1 = placeholder_lemmatize(script1)
+        script2 = placeholder_lemmatize(script2)
+    if tfidf:
+        script1 = placeholder_tfidf(script1)
+        script2 = placeholder_tfidf(script2)
+    if lsa:
+        script1 = placeholder_lsa(script1)
+        script2 = placeholder_lsa(script2)
+    if word_embedding:
+        script1 = placeholder_word_embedding(script1)
+        script2 = placeholder_word_embedding(script2)
+
+
+
+    # Calculate the Similiarty Scores: 
     return 42
 
 
@@ -96,6 +113,12 @@ def doc_sim(script1, script2, mode = 'normal', method = 'cosine',
 doc_sim([1,2,3], [1,2,3], remove_stop_words = "0")
 
 # %%
-remove_stop_words = 1
-remove_stop_words not in (True, False)
+import sklearn.metrics
+set1 = ['david', 'likes', 'chocolate']
+set2 = ['david', 'likes', 'chocolate']
+
+set3 = {'a', 'b', 'c', 'd'}
+set4 = {'a'}
+sklearn.metrics.pairwise.cosine_similarity(X = set1, Y=set2, dense_output=True)
+
 # %%
