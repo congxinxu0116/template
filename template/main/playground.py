@@ -9,10 +9,9 @@ documents
 # %%
 from sklearn.feature_extraction.text \
     import CountVectorizer
+import numpy
 count_vectorizer = CountVectorizer()
 count_matrix = count_vectorizer.fit_transform(documents)
-
-
 
 # %%
 def CalCosSim(set1, set2):
@@ -82,7 +81,7 @@ list1 = []
 list2 = [] 
 
 # Form a set containing unique words of both strings  
-set_union = set1.union(set2)  
+set_union = set1.union(set3)  
 
 # Fill list1 and list2 with 0 and 1
 # if the word show up in set1, list1 will have a 1, 
@@ -94,23 +93,24 @@ for w in set_union:
         list1.append(1)  
     else: 
         list1.append(0) 
-    if w in set2: 
+    if w in set3: 
         list2.append(1) 
     else: 
         list2.append(0)
 
-x = [list1, list2]
-x
-# %%
-import sklearn.preprocessing 
-x_norm = sklearn.preprocessing.normalize(x)
-print(cosine_similarity(x_norm[0].reshape(-1, 1), 
-                        x_norm[1].reshape(-1, 1)))
 
 # %%
-x_norm[0].reshape(-1, 1)
-# %%
-print(count_matrix[0:3])
-# %%
+from scipy import sparse
+A =  numpy.array([list1, list2])
+A_sparse = sparse.csr_matrix(A)
 
+similarities = cosine_similarity(A_sparse, dense_output=False)
+print('pairwise dense output:\n {}\n'.format(similarities))
+# %%
+from scipy import sparse
+A =  numpy.array([list1, list2])
+A_sparse = sparse.csr_matrix(A)
+
+similarities = cosine_similarity(A_sparse, dense_output=False)
+print('pairwise dense output:\n {}\n'.format(similarities))
 # %%
