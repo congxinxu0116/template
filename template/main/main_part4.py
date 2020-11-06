@@ -8,7 +8,7 @@ import pandas
 import sklearn.feature_extraction.text
 import sklearn.metrics.pairwise
 # Input:
-# - document_matrix, 
+# - document_matrix, Pandas Data Frame
 # - mode:
 #   - Default: 'normal'
 #   - pairwise
