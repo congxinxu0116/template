@@ -9,11 +9,9 @@ import sklearn.feature_extraction.text
 import sklearn.metrics.pairwise
 # Input:
 # - document_matrix, 
-# - script2,
 # - mode:
 #   - Default: 'normal'
 #   - pairwise
-#   - cross
 # - method:
 #   - Default: 'cosine'
 #   - more can be added
@@ -56,6 +54,8 @@ def placeholder_word_embedding(x):
 
 def average_similarity(document_matrix, mode = 'normal'):
     # Get the last column of the document_matrix
+    # type = pandas series
+    # dtype = float
     scores = document_matrix[document_matrix.columns[-1]] 
 
     # Check to see if the type of tmp is 
@@ -77,9 +77,9 @@ def doc_sim(document_matrix, mode = 'normal', method = 'cosine',
     word_embedding = True):
 
     # Check if each input has the correct type
-    if mode not in ('normal', 'pairwise','cross'):
+    if mode not in ('normal', 'pairwise'):
         raise SystemExit("Incorrect 'mode' used. \
-            Choose 'normal' or 'pairwise' or 'cross'")
+            Choose 'normal' or 'pairwise'")
 
     # Check if the method is coded correctly
     if method not in ('cosine'):
@@ -109,23 +109,36 @@ def doc_sim(document_matrix, mode = 'normal', method = 'cosine',
         document_matrix = placeholder_lsa(document_matrix)
     if word_embedding:
         document_matrix = placeholder_word_embedding(document_matrix)
+    
+    # Vectorize the last column of the document_matrix
+    # Here the assumption is that the last column of the document_matrix
+    #   contains the cleaned words
+    count_vectorizer = sklearn.feature_extraction.text.CountVectorizer()
+    count_matrix = count_vectorizer.\
+        fit_transform(document_matrix[document_matrix.columns[-1]])
 
     # Main Section:
-    if mode == 'normal':
-               
-        # Vectorize the last column of the document_matrix
-        # Here the assumption is that the last column of the document_matrix
-        #   contains the cleaned words
-        count_vectorizer = sklearn.feature_extraction.text.CountVectorizer()
-        count_matrix = count_vectorizer.\
-            fit_transform(document_matrix[document_matrix.columns[-1]])
-            
+    if mode == 'normal':   
+
         # Calculate the Similarity Score
         if method == 'cosine':           
+            # Calculate the cosine similarity score
+            # -----------------------------------------------------------
+            # Use Case 1: Within Study - Benchmark Script vs. Session Script(s)
+            #   Assume the first document is the benchmark 
+            #   Assume the rest of the documents are the session scripts
+            # -----------------------------------------------------------
+            # Use Case 2: Across Study - Session script A1 vs. B Session Scripts 
+            #   Assume the first document is the session script from Study A
+            #   Assume the rest of the documents are the session scripts from
+            #       study B
+            # -----------------------------------------------------------
             similarity_score = sklearn.metrics.pairwise.\
-                               cosine_similarity(count_matrix[0:1],
+                               cosine_similarity(count_matrix[0],
                                                  count_matrix,
                                                  dense_output = True)
+            
+            # Write the similarity score back to the orignial DF
             document_matrix['similarity_score'] = \
                 similarity_score.reshape(-1, 1)
 
@@ -133,29 +146,29 @@ def doc_sim(document_matrix, mode = 'normal', method = 'cosine',
             return(document_matrix)
     
     if mode == 'pairwise':
-        # Create an empty list to store the average pairwise similarity score
+        # Create an empty pandas Series to store the 
+        #   average pairwise similarity score
         scores = pandas.Series()
-
-        # Vectorize the last column of the document_matrix
-        # Here the assumption is that the last column of the document_matrix
-        #   contains the cleaned words
-        count_vectorizer = sklearn.feature_extraction.text.CountVectorizer()
-        count_matrix = count_vectorizer.\
-            fit_transform(document_matrix[document_matrix.columns[-1]])
             
         # Calculate the Similarity Score
         if method == 'cosine':
-            for index, row in document_matrix.iterrows():          
+            # Calculate the pairwise cosine similarty for each document
+            # Assume the all document is the session scripts
+            # Assume all documents are in the same study
+            for index, row in document_matrix.iterrows():
+                # Calculate the cosine similarity for each document        
                 similarity_score = sklearn.metrics.pairwise.\
                                    cosine_similarity(count_matrix[index],
                                                      count_matrix,
                                                      dense_output = True)
                 
+                # Add each average pairwise score to the storage Series
                 scores.at[index] = average_similarity(
                     pandas.DataFrame(similarity_score.reshape(-1, 1))
                 )
-
+                # Write the similarity score back to the orignial DF
                 document_matrix['similarity_score'] = scores
+            
             # Return the output data frame
             return(document_matrix)
 
@@ -192,6 +205,5 @@ data.columns = ["DocumentID", "CoachID",
               "Cleaned_Vectorized_Document",
               "Cleaned_Vectorized_Document_Length"]
 data = data[["DocumentID", "CoachID", "Cleaned_Vectorized_Document"]]
-data = doc_sim(data.iloc[0:100,], mode = 'pairwise')
+data = doc_sim(data.iloc[0:1000,], mode = 'pairwise')
 average_similarity(data, mode = 'pairwise')
-# %% Across Study Transcript Similarity
