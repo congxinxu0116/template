@@ -10,6 +10,7 @@ documents
 from sklearn.feature_extraction.text \
     import CountVectorizer
 import numpy
+import pandas
 count_vectorizer = CountVectorizer()
 count_matrix = count_vectorizer.fit_transform(documents)
 
@@ -107,7 +108,9 @@ A_sparse = sparse.csr_matrix(A)
 similarities = cosine_similarity(A_sparse, dense_output=False)
 print('pairwise dense output:\n {}\n'.format(similarities))
 # %%
-from scipy import sparse
+import pandas
+import sklearn.feature_extraction.text
+import sklearn.metrics.pairwise
 A =  numpy.array([list1, list2])
 A_sparse = sparse.csr_matrix(A)
 
