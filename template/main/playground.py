@@ -114,3 +114,24 @@ A_sparse = sparse.csr_matrix(A)
 similarities = cosine_similarity(A_sparse, dense_output=False)
 print('pairwise dense output:\n {}\n'.format(similarities))
 # %%
+
+
+# %% 
+data = pandas.read_csv('twitter_clean.csv')
+data.columns = ["DocumentID", "CoachID", 
+              "Cleaned_Vectorized_Document",
+              "Cleaned_Vectorized_Document_Length"]
+data.head()
+#%% 
+count_vectorizer = sklearn.feature_extraction.text.CountVectorizer()
+count_matrix = count_vectorizer.\
+               fit_transform(data.Cleaned_Vectorized_Document)
+#%% 
+x = sklearn.metrics.pairwise.cosine_similarity(count_matrix[0:1], 
+                                                 count_matrix,
+                                                 dense_output = True)
+
+# %%
+df = pandas.DataFrame(data = x.reshape(len(x[0]), 1))
+df.columns = ['cos_sim']
+df.head()
